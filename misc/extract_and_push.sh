@@ -103,11 +103,11 @@ for p in $PARTITIONS; do
     if [ -f "$p.img" ]; then
         mkdir "$p" || rm -rf "${p:?}"/*
         7z x "$p".img -y -o"$p"/ || {
-            sudo mount -o loop "$p".img "$p"
+            mount -o loop "$p".img "$p"
             mkdir "${p}_"
-            sudo cp -rf "${p}/*" "${p}_"
-            sudo umount "${p}"
-            sudo mv "${p}_" "${p}"
+            cp -rf "${p}/*" "${p}_"
+            umount "${p}"
+            mv "${p}_" "${p}"
         }
         rm -fv "$p".img
     fi
@@ -178,8 +178,8 @@ fi
 sort -u -o ./board-info.txt ./board-info.txt
 
 # Fix permissions
-sudo chown "$(whoami)" ./* -R
-sudo chmod -R u+rwX ./*
+chown "$(whoami)" ./* -R
+chmod -R u+rwX ./*
 
 # Generate all_files.txt
 find . -type f -printf '%P\n' | sort | grep -v ".git/" > ./all_files.txt

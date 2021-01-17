@@ -13,10 +13,10 @@ UBUNTU_18_PACKAGES="curl"
 UBUNTU_20_PACKAGES="python"
 PACKAGES=""
 
-sudo apt update
+apt update
 
 # Install lsb-core packages
-sudo apt install lsb-core -y
+apt install lsb-core -y
 
 LSB_RELEASE="$(lsb_release -d | cut -d ':' -f 2 | sed -e 's/^[[:space:]]*//')"
 
@@ -30,7 +30,7 @@ elif [[ ${LSB_RELEASE} =~ "Ubuntu 20" ]]; then
     PACKAGES="${UBUNTU_20_PACKAGES}"
 fi
 
-sudo DEBIAN_FRONTEND=noninteractive \
+DEBIAN_FRONTEND=noninteractive \
     apt install \
     adb autoconf automake axel bc bison build-essential \
     ccache clang cmake expat fastboot flex g++ \
@@ -44,39 +44,22 @@ sudo DEBIAN_FRONTEND=noninteractive \
     libxml-simple-perl apt-utils \
     "${PACKAGES}" -y
 
-# For all those distro hoppers, lets setup your git credentials
-GIT_USERNAME="$(git config --get user.name)"
-GIT_EMAIL="$(git config --get user.email)"
-echo "Configuring git"
-if [[ -z ${GIT_USERNAME} ]]; then
-    echo -n "Enter your name: "
-    read -r NAME
-    git config --global user.name "${NAME}"
-fi
-if [[ -z ${GIT_EMAIL} ]]; then
-    echo -n "Enter your email: "
-    read -r EMAIL
-    git config --global user.email "${EMAIL}"
-fi
-git config --global credential.helper "cache --timeout=7200"
-echo "git identity setup successfully!"
-
 # From Ubuntu 18.10 onwards and Debian Buster libncurses5 package is not available, so we need to hack our way by symlinking required library
 # shellcheck disable=SC2076
 if [[ ${LSB_RELEASE} =~ "Ubuntu 18.10" || ${LSB_RELEASE} =~ "Ubuntu 19" || ${LSB_RELEASE} =~ "Ubuntu Focal Fossa" || ${LSB_RELEASE} =~ "Debian GNU/Linux 10" ]]; then
     if [[ -e /lib/x86_64-linux-gnu/libncurses.so.6 && ! -e /usr/lib/x86_64-linux-gnu/libncurses.so.5 ]]; then
-        sudo ln -s /lib/x86_64-linux-gnu/libncurses.so.6 /usr/lib/x86_64-linux-gnu/libncurses.so.5
+        ln -s /lib/x86_64-linux-gnu/libncurses.so.6 /usr/lib/x86_64-linux-gnu/libncurses.so.5
     fi
 fi
 
 if [[ "$(command -v adb)" != "" ]]; then
     echo -e "Setting up udev rules for adb!"
-    sudo curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/M0Rf30/android-udev-rules/master/51-android.rules
-    sudo chmod 644 /etc/udev/rules.d/51-android.rules
-    sudo chown root /etc/udev/rules.d/51-android.rules
-    sudo systemctl restart udev
+    curl --create-dirs -L -o /etc/udev/rules.d/51-android.rules -O -L https://raw.githubusercontent.com/M0Rf30/android-udev-rules/master/51-android.rules
+    chmod 644 /etc/udev/rules.d/51-android.rules
+    chown root /etc/udev/rules.d/51-android.rules
+    systemctl restart udev
     adb kill-server
-    sudo killall adb
+    killall adb
 fi
 
 if [[ "$(command -v make)" ]]; then
@@ -88,5 +71,5 @@ if [[ "$(command -v make)" ]]; then
 fi
 
 echo "Installing repo"
-sudo curl --create-dirs -L -o /usr/local/bin/repo -O -L https://storage.googleapis.com/git-repo-downloads/repo
-sudo chmod a+rx /usr/local/bin/repo
+curl --create-dirs -L -o /usr/local/bin/repo -O -L https://storage.googleapis.com/git-repo-downloads/repo
+chmod a+rx /usr/local/bin/repo

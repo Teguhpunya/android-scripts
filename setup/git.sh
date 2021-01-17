@@ -10,7 +10,7 @@ make configure
 
 ./configure --prefix=/usr/local --with-curl
 
-sudo make install -j"$(nproc)"
+make install -j"$(nproc)"
 
 git --version
 
